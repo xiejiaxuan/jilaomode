@@ -1,4 +1,4 @@
-name = "JiaoHouse"
+name = "豪华庭院"
 description = "A starter indoor building mod for DST: build a door, enter an interior zone, place decorative furniture."
 author = "xy"
 version = "0.1.0"
