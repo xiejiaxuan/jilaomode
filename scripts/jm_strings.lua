@@ -1,0 +1,10 @@
+STRINGS.NAMES.JM_HOUSE_DOOR = "House Door"
+STRINGS.RECIPE_DESC.JM_HOUSE_DOOR = "Build a small doorway to your interior."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.JM_HOUSE_DOOR = "Home sweet home."
+
+STRINGS.NAMES.JM_DECO_PLANT_KIT = "Potted Plant Kit"
+STRINGS.RECIPE_DESC.JM_DECO_PLANT_KIT = "A simple decorative indoor plant."
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.JM_DECO_PLANT_KIT = "Time to brighten the room."
+
+STRINGS.NAMES.JM_DECO_PLANT = "Potted Plant"
+STRINGS.CHARACTERS.GENERIC.DESCRIBE.JM_DECO_PLANT = "Purely decorative, and neat."
