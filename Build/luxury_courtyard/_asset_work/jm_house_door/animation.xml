@@ -1,0 +1,12 @@
+<Anims>
+  <anim name="close" root="house" framerate="30">
+    <frame x="-128" y="0" w="256" h="256">
+      <element name="house" frame="0" layername="house" m_a="1" m_b="0" m_c="0" m_d="1" m_tx="0" m_ty="0" z_index="0"/>
+    </frame>
+  </anim>
+  <anim name="open" root="house" framerate="30">
+    <frame x="-128" y="0" w="256" h="256">
+      <element name="house" frame="0" layername="house" m_a="1" m_b="0" m_c="0" m_d="1" m_tx="0" m_ty="0" z_index="0"/>
+    </frame>
+  </anim>
+</Anims>
