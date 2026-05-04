@@ -37,4 +37,18 @@ configuration_options = {
         },
         default = 1.0,
     },
+    {
+        name = "house_door_scale",
+        label = "House Door Scale",
+        options = {
+            { description = "2x", data = 2 },
+            { description = "3x", data = 3 },
+            { description = "4x", data = 4 },
+            { description = "5x", data = 5 },
+            { description = "6x", data = 6 },
+            { description = "8x", data = 8 },
+            { description = "10x", data = 10 },
+        },
+        default = 5,
+    },
 }

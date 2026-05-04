@@ -4,62 +4,78 @@ PrefabFiles = {
     "jm_deco_plant_kit",
 }
 
-GLOBAL.setfenv(1, GLOBAL)
+local MOD_NAME = modname
+local GetModConfigDataForMod = GetModConfigData
+local ModImportForMod = modimport
+local Ingredient = GLOBAL.Ingredient
+local SoftResolveFilePath = GLOBAL.softresolvefilepath
+local RegisterInventoryItemAtlas = GLOBAL.RegisterInventoryItemAtlas
+local Math = GLOBAL.math
 
--- 从 mod 配置读取参数，便于后续在创世界界面调节。
-local INTERIOR_SIZE = GetModConfigData("interior_size") or 10
-local GRID_SIZE = GetModConfigData("grid_size") or 1.0
+local INTERIOR_SIZE = GetModConfigDataForMod("interior_size", MOD_NAME) or 10
+local GRID_SIZE = GetModConfigDataForMod("grid_size", MOD_NAME) or 1.0
+local HOUSE_DOOR_SCALE = GetModConfigDataForMod("house_door_scale", MOD_NAME) or 5
+local HOUSE_DOOR_ATLAS = "images/inventoryimages/jm_house_door.xml"
+local HOUSE_DOOR_IMAGE = "jm_house_door.tex"
+local PLANT_KIT_ATLAS = "images/inventoryimages/jm_deco_plant_kit.xml"
+local PLANT_KIT_IMAGE = "jm_deco_plant_kit.tex"
 
--- 统一放到 TUNING，方便各 prefab / component 共享。
-TUNING.JM_INTERIOR_SIZE = INTERIOR_SIZE
-TUNING.JM_GRID_SIZE = GRID_SIZE
--- 室内区放在地图远端，减少和正常出生区重叠的概率。
-TUNING.JM_INTERIOR_START_X = -2500
-TUNING.JM_INTERIOR_START_Z = -2500
--- 每个室内实例在 X 轴上间隔这么远，避免互相覆盖。
-TUNING.JM_INTERIOR_STRIDE = 40
+Assets = {
+    Asset("ANIM", "anim/jm_house_door.zip"),
+    Asset("IMAGE", "images/inventoryimages/jm_house_door.tex"),
+    Asset("ATLAS", "images/inventoryimages/jm_house_door.xml"),
+}
 
-modimport("scripts/jm_strings.lua")
+GLOBAL.TUNING.JM_INTERIOR_SIZE = INTERIOR_SIZE
+GLOBAL.TUNING.JM_GRID_SIZE = GRID_SIZE
+GLOBAL.TUNING.JM_INTERIOR_STRIDE = 40
+GLOBAL.TUNING.JM_HOUSE_DOOR_SCALE = HOUSE_DOOR_SCALE
+GLOBAL.TUNING.JM_HOUSE_DOOR_PHYSICS_RADIUS = Math.max(1, HOUSE_DOOR_SCALE * 0.5)
 
--- 若已放入自定义图标图集，则注册给背包系统使用。
-if softresolvefilepath("images/inventoryimages/jm_deco_plant_kit.xml") ~= nil then
-    RegisterInventoryItemAtlas("images/inventoryimages/jm_deco_plant_kit.xml", "jm_deco_plant_kit.tex")
+ModImportForMod("scripts/jm_strings.lua")
+
+if SoftResolveFilePath(HOUSE_DOOR_ATLAS) ~= nil then
+    RegisterInventoryItemAtlas(HOUSE_DOOR_ATLAS, HOUSE_DOOR_IMAGE)
+end
+
+if SoftResolveFilePath(PLANT_KIT_ATLAS) ~= nil then
+    RegisterInventoryItemAtlas(PLANT_KIT_ATLAS, PLANT_KIT_IMAGE)
 end
 
 AddPrefabPostInit("world", function(inst)
-    if not TheWorld.ismastersim then
+    if not GLOBAL.TheWorld.ismastersim then
         return
     end
     if inst.components.jm_interiormanager == nil then
-        -- 世界级组件：负责“一个门对应一个室内槽位”的分配。
         inst:AddComponent("jm_interiormanager")
     end
 end)
 
--- 建筑入口门配方。
 AddRecipe2(
     "jm_house_door",
     {
         Ingredient("boards", 4),
         Ingredient("cutstone", 4),
     },
-    TECH.SCIENCE_ONE,
+    GLOBAL.TECH.SCIENCE_ONE,
     {
+        atlas = HOUSE_DOOR_ATLAS,
+        image = HOUSE_DOOR_IMAGE,
         placer = "jm_house_door_placer",
         min_spacing = 2,
     },
     { "STRUCTURES" }
 )
 
--- 装饰家具（盆栽）套件配方。
 AddRecipe2(
     "jm_deco_plant_kit",
     {
         Ingredient("cutgrass", 6),
         Ingredient("twigs", 3),
     },
-    TECH.NONE,
+    GLOBAL.TECH.NONE,
     {
+        image = "petals.tex",
         numtogive = 1,
     },
     { "DECOR" }

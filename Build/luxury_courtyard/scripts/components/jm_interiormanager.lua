@@ -21,10 +21,24 @@ local function EnsureInteriorGround(center, size)
     if TheWorld == nil or TheWorld.Map == nil then
         return
     end
+    if TheWorld.Map.GetTileCoordsAtPoint == nil or TheWorld.Map.GetTileCenterPoint == nil then
+        return
+    end
+    if not TheWorld.Map:IsInMapBounds(center.x, 0, center.z) then
+        return
+    end
+
+    local center_tx, center_tz = TheWorld.Map:GetTileCoordsAtPoint(center.x, 0, center.z)
     local half = math.floor(size / 2)
     for x = -half, half do
         for z = -half, half do
-            TheWorld.Map:SetTile(center.x + x, 0, center.z + z, WORLD_TILES.WOODFLOOR)
+            local tx = center_tx + x
+            local tz = center_tz + z
+            local world_x, world_y, world_z = TheWorld.Map:GetTileCenterPoint(tx, tz)
+            world_z = world_z or world_y
+            if world_x ~= nil and TheWorld.Map:IsInMapBounds(world_x, 0, world_z) then
+                TheWorld.Map:SetTile(tx, tz, WORLD_TILES.WOODFLOOR)
+            end
         end
     end
 end
@@ -41,6 +55,30 @@ end
 ]]
 -- 把槽位 ID 映射到实际世界坐标（同一张地图里的隐藏区域）。
 local function BuildSlotPosition(id)
+    if TheWorld ~= nil and TheWorld.Map ~= nil and TheWorld.Map.GetSize ~= nil and TheWorld.Map.GetTileCenterPoint ~= nil then
+        local map_width, map_height = TheWorld.Map:GetSize()
+        if map_width ~= nil and map_height ~= nil and map_width > 0 and map_height > 0 then
+            local tile_scale = TILE_SCALE or 4
+            local interior_size = TUNING.JM_INTERIOR_SIZE or 10
+            local stride_world = TUNING.JM_INTERIOR_STRIDE or 40
+            local stride_tiles = math.max(interior_size + 8, math.ceil(stride_world / tile_scale))
+            local margin = math.max(interior_size + 8, stride_tiles)
+            local usable_width = math.max(1, map_width - margin * 2)
+            local usable_height = math.max(1, map_height - margin * 2)
+            local slots_per_row = math.max(1, math.floor(usable_width / stride_tiles))
+            local rows = math.max(1, math.floor(usable_height / stride_tiles))
+            local index = math.max(0, (id or 1) - 1)
+            local tx = margin + (index % slots_per_row) * stride_tiles
+            local tz = margin + (math.floor(index / slots_per_row) % rows) * stride_tiles
+            local world_x, world_y, world_z = TheWorld.Map:GetTileCenterPoint(tx, tz)
+            world_z = world_z or world_y
+
+            if world_x ~= nil and TheWorld.Map:IsInMapBounds(world_x, 0, world_z) then
+                return Vector3(world_x, 0, world_z)
+            end
+        end
+    end
+
     local stride = TUNING.JM_INTERIOR_STRIDE or 40
     local start_x = TUNING.JM_INTERIOR_START_X or -2500
     local start_z = TUNING.JM_INTERIOR_START_Z or -2500

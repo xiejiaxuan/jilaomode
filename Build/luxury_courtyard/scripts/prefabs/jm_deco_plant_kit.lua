@@ -1,11 +1,18 @@
-local assets = {
-    Asset("ANIM", "anim/pottedfern.zip"),
-    Asset("ANIM", "anim/jm_deco_plant.zip"),
-    Asset("ATLAS", "images/inventoryimages.xml"),
-    Asset("ATLAS", "images/inventoryimages/jm_deco_plant_kit.xml"),
-}
 local USE_CUSTOM_PLANT_ANIM = softresolvefilepath("anim/jm_deco_plant.zip") ~= nil
 local USE_CUSTOM_KIT_ATLAS = softresolvefilepath("images/inventoryimages/jm_deco_plant_kit.xml") ~= nil
+local FALLBACK_PLANT_ANIM = "cave_ferns_potted"
+local assets = {
+    Asset("ANIM", "anim/cave_ferns_potted.zip"),
+    Asset("ATLAS", "images/inventoryimages.xml"),
+}
+
+if USE_CUSTOM_PLANT_ANIM then
+    table.insert(assets, Asset("ANIM", "anim/jm_deco_plant.zip"))
+end
+
+if USE_CUSTOM_KIT_ATLAS then
+    table.insert(assets, Asset("ATLAS", "images/inventoryimages/jm_deco_plant_kit.xml"))
+end
 
 --[[
     SnapToGrid(value, grid)
@@ -68,8 +75,8 @@ local function kit_fn()
 
     MakeInventoryPhysics(inst)
 
-    local bank = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or "pottedfern"
-    local build = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or "pottedfern"
+    local bank = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or FALLBACK_PLANT_ANIM
+    local build = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or FALLBACK_PLANT_ANIM
     inst.AnimState:SetBank(bank)
     inst.AnimState:SetBuild(build)
     inst.AnimState:PlayAnimation("idle", true)
@@ -87,7 +94,7 @@ local function kit_fn()
         inst.components.inventoryitem.imagename = "jm_deco_plant_kit"
         inst.components.inventoryitem.atlasname = "images/inventoryimages/jm_deco_plant_kit.xml"
     else
-        inst.components.inventoryitem.imagename = "pottedfern"
+        inst.components.inventoryitem.imagename = "petals"
         inst.components.inventoryitem.atlasname = "images/inventoryimages.xml"
     end
 

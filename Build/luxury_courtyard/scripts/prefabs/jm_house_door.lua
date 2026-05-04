@@ -1,11 +1,15 @@
 local assets = {
-    Asset("ANIM", "anim/treasure_chest.zip"),
     Asset("ANIM", "anim/jm_house_door.zip"),
-    Asset("ATLAS", "images/inventoryimages.xml"),
+    Asset("IMAGE", "images/inventoryimages/jm_house_door.tex"),
+    Asset("ATLAS", "images/inventoryimages/jm_house_door.xml"),
 }
 
 local prefabs = {}
-local USE_CUSTOM_DOOR_ANIM = softresolvefilepath("anim/jm_house_door.zip") ~= nil
+
+local function ApplyDoorVisuals(inst)
+    local scale = TUNING.JM_HOUSE_DOOR_SCALE or 2
+    inst.AnimState:SetScale(scale, scale)
+end
 
 --[[
     MarkPlayerInteriorState(player, in_interior)
@@ -83,8 +87,8 @@ local function EnsurePairedDoor(inst)
         inside.Transform:SetPosition(interior_pos.x, 0, interior_pos.z)
 
         -- 建立双向传送关系：室外 <-> 室内。
-        inst.components.teleporter.targetTeleporter = inside
-        inside.components.teleporter.targetTeleporter = inst
+        inst.components.teleporter:Target(inside)
+        inside.components.teleporter:Target(inst)
         inst._paired_guid = inside.GUID
         inside._paired_guid = inst.GUID
     end
@@ -154,6 +158,14 @@ end
       OnLoad 阶段很多实体还没准备好，直接引用可能为空。
 ]]
 local function onloadpostpass(inst, newents, data)
+    if inst._is_inside_door:value() and inst._interior_id ~= nil then
+        local manager = TheWorld.components.jm_interiormanager
+        local interior_pos = manager ~= nil and manager:GetSlotPosition(inst._interior_id) or nil
+        if interior_pos ~= nil then
+            inst.Transform:SetPosition(interior_pos.x, 0, interior_pos.z)
+        end
+    end
+
     if data == nil or data.paired_guid == nil then
         if not inst._is_inside_door:value() then
             EnsurePairedDoor(inst)
@@ -198,17 +210,16 @@ local function fn()
     inst.entity:AddMiniMapEntity()
     inst.entity:AddNetwork()
 
-    MakeObstaclePhysics(inst, 0.6)
+    MakeObstaclePhysics(inst, TUNING.JM_HOUSE_DOOR_PHYSICS_RADIUS or 1)
 
-    -- 有自定义资源时优先使用；没有则回退到原版箱子资源，保证 mod 可运行。
-    local bank = USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest"
-    local build = USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest"
-    inst.AnimState:SetBank(bank)
-    inst.AnimState:SetBuild(build)
+    inst.AnimState:SetBank("jm_house_door")
+    inst.AnimState:SetBuild("jm_house_door")
     inst.AnimState:PlayAnimation("close", true)
+    ApplyDoorVisuals(inst)
 
     inst:AddTag("structure")
     inst:AddTag("jm_house_door")
+    inst:AddTag("teleporter")
 
     -- 网络变量：同步“是否室内门”到客户端。
     inst._is_inside_door = net_bool(inst.GUID, "jm_house_door._is_inside_door", "jm_door_dirty")
@@ -240,6 +251,7 @@ local function fn()
     inst:AddComponent("lootdropper")
 
     inst:ListenForEvent("onbuilt", OnBuilt)
+    inst:DoTaskInTime(0, EnsurePairedDoor)
 
     MakeLargeBurnable(inst, nil, nil, true)
     MakeLargePropagator(inst)
@@ -260,15 +272,14 @@ local function placer_fn()
     inst.entity:AddNetwork()
     inst.entity:SetPristine()
 
-    local bank = USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest"
-    local build = USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest"
-    inst.AnimState:SetBank(bank)
-    inst.AnimState:SetBuild(build)
+    inst.AnimState:SetBank("jm_house_door")
+    inst.AnimState:SetBuild("jm_house_door")
     inst.AnimState:PlayAnimation("close", true)
+    ApplyDoorVisuals(inst)
     inst.AnimState:SetMultColour(0, 1, 0, 0.6)
 
     return inst
 end
 
 return Prefab("jm_house_door", fn, assets, prefabs),
-    MakePlacer("jm_house_door_placer", USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest", USE_CUSTOM_DOOR_ANIM and "jm_house_door" or "treasure_chest", "close")
+    MakePlacer("jm_house_door_placer", "jm_house_door", "jm_house_door", "close")

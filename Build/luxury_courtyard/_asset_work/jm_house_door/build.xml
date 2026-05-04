@@ -1,5 +1,5 @@
 <Build name="jm_house_door">
   <Symbol name="house">
-    <Frame framenum="0" duration="1" x="0" y="128" w="256" h="256" image="house/house-0"/>
+    <Frame framenum="0" duration="1" x="0" y="-128" w="256" h="256" image="house/house-0"/>
   </Symbol>
 </Build>

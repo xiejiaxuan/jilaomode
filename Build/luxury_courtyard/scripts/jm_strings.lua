@@ -1,3 +1,5 @@
+local STRINGS = GLOBAL.STRINGS
+
 STRINGS.NAMES.JM_HOUSE_DOOR = "House Door"
 STRINGS.RECIPE_DESC.JM_HOUSE_DOOR = "Build a small doorway to your interior."
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.JM_HOUSE_DOOR = "Home sweet home."

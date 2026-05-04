@@ -1,8 +1,12 @@
-local assets = {
-    Asset("ANIM", "anim/pottedfern.zip"),
-    Asset("ANIM", "anim/jm_deco_plant.zip"),
-}
 local USE_CUSTOM_PLANT_ANIM = softresolvefilepath("anim/jm_deco_plant.zip") ~= nil
+local FALLBACK_PLANT_ANIM = "cave_ferns_potted"
+local assets = {
+    Asset("ANIM", "anim/cave_ferns_potted.zip"),
+}
+
+if USE_CUSTOM_PLANT_ANIM then
+    table.insert(assets, Asset("ANIM", "anim/jm_deco_plant.zip"))
+end
 
 --[[
     deco_fn()
@@ -22,8 +26,8 @@ local function deco_fn()
 
     MakeObstaclePhysics(inst, 0.25)
 
-    local bank = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or "pottedfern"
-    local build = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or "pottedfern"
+    local bank = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or FALLBACK_PLANT_ANIM
+    local build = USE_CUSTOM_PLANT_ANIM and "jm_deco_plant" or FALLBACK_PLANT_ANIM
     inst.AnimState:SetBank(bank)
     inst.AnimState:SetBuild(build)
     inst.AnimState:PlayAnimation("idle", true)
