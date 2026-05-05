@@ -1,0 +1,12 @@
+<Anims>
+  <anim name="close" root="jm_pink_inside_door" framerate="30">
+    <frame x="0" y="-128" w="256" h="256">
+      <element name="house" frame="0" layername="house" m_a="1" m_b="0" m_c="0" m_d="1" m_tx="0" m_ty="0" z_index="0"/>
+    </frame>
+  </anim>
+  <anim name="open" root="jm_pink_inside_door" framerate="30">
+    <frame x="0" y="-128" w="256" h="256">
+      <element name="house" frame="0" layername="house" m_a="1" m_b="0" m_c="0" m_d="1" m_tx="0" m_ty="0" z_index="0"/>
+    </frame>
+  </anim>
+</Anims>

@@ -117,6 +117,7 @@ end
 ```
 
 - Avoid hardcoded far coordinates like `-2500, -2500` unless bounds are guaranteed.
+- Interior slots should reserve enough tile spacing for floor, boundary walls, and dark padding. If room padding grows, increase `JM_INTERIOR_STRIDE` or derive slot spacing from the full generated room footprint.
 
 ## Recipe Icons
 
@@ -182,10 +183,11 @@ inst:DoTaskInTime(0, EnsurePairedDoor)
 local MOD_NAME = modname
 local HOUSE_DOOR_SCALE = GetModConfigData("house_door_scale", MOD_NAME) or 5
 GLOBAL.TUNING.JM_HOUSE_DOOR_SCALE = HOUSE_DOOR_SCALE
-GLOBAL.TUNING.JM_HOUSE_DOOR_PHYSICS_RADIUS = GLOBAL.math.max(1, HOUSE_DOOR_SCALE * 0.5)
+GLOBAL.TUNING.JM_HOUSE_DOOR_PHYSICS_RADIUS = GLOBAL.math.max(1, HOUSE_DOOR_SCALE * 256 / 150 / 2)
 ```
 
 - Keep visual scale and physics radius in sync. Otherwise the building may look huge while the collision/interaction point still feels tiny.
+- For the current 256x256 house frames, use the same pixel-to-world estimate for all house variants so visual width and obstacle diameter grow together.
 
 ## Headless Validation
 
